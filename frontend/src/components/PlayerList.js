@@ -11,6 +11,15 @@ function PlayerList() {
 	const [isGenerating, setIsGenerating] = useState(false)
 	const abortControllerRef = useRef(null)
 	const fullDescriptionRef = useRef('')
+	const [showSkeleton, setShowSkeleton] = useState(true)
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setShowSkeleton(false)
+		}, 1500)
+
+		return () => clearTimeout(timer)
+	}, [])
 
 	const fetchPlayers = async () => {
 		try {
@@ -160,43 +169,58 @@ function PlayerList() {
 				<p>Loading...</p>
 			) : (
 				<div className={styles.playerGrid}>
-					{players.map(player => (
-						<div
-							key={player._id}
-							className={styles.playerCard}
-							onClick={() => handlePlayerClick(player)}
-						>
-							<h2>
-								{player.rank}. {player.player}
-							</h2>
-							<div className={styles.statsContainer}>
-								<div className={styles.statItem}>
-									<span className={styles.statLabel}>Year</span>
-									<span className={styles.statValue}>
-										{player.year}
-									</span>
+					{showSkeleton
+						? Array.from({length: 8}).map((_, index) => (
+								<div
+									key={index}
+									className={`${styles.playerCard} ${styles.skeleton}`}
+								>
+									<div className={styles.skeletonTitle}></div>
+									<div className={styles.skeletonStats}>
+										<div className={styles.skeletonStat}></div>
+										<div className={styles.skeletonStat}></div>
+										<div className={styles.skeletonStat}></div>
+										<div className={styles.skeletonStat}></div>
+									</div>
 								</div>
-								<div className={styles.statItem}>
-									<span className={styles.statLabel}>Age</span>
-									<span className={styles.statValue}>
-										{player.age}
-									</span>
+						  ))
+						: players.map(player => (
+								<div
+									key={player._id}
+									className={styles.playerCard}
+									onClick={() => handlePlayerClick(player)}
+								>
+									<h2>
+										{player.rank}. {player.player}
+									</h2>
+									<div className={styles.statsContainer}>
+										<div className={styles.statItem}>
+											<span className={styles.statLabel}>Year</span>
+											<span className={styles.statValue}>
+												{player.year}
+											</span>
+										</div>
+										<div className={styles.statItem}>
+											<span className={styles.statLabel}>Age</span>
+											<span className={styles.statValue}>
+												{player.age}
+											</span>
+										</div>
+										<div className={styles.statItem}>
+											<span className={styles.statLabel}>Hits</span>
+											<span className={styles.statValue}>
+												{player.hits}
+											</span>
+										</div>
+										<div className={styles.statItem}>
+											<span className={styles.statLabel}>Bats</span>
+											<span className={styles.statValue}>
+												{player.bats}
+											</span>
+										</div>
+									</div>
 								</div>
-								<div className={styles.statItem}>
-									<span className={styles.statLabel}>Hits</span>
-									<span className={styles.statValue}>
-										{player.hits}
-									</span>
-								</div>
-								<div className={styles.statItem}>
-									<span className={styles.statLabel}>Bats</span>
-									<span className={styles.statValue}>
-										{player.bats}
-									</span>
-								</div>
-							</div>
-						</div>
-					))}
+						  ))}
 				</div>
 			)}
 			{selectedPlayer && (

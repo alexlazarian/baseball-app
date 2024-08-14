@@ -88,3 +88,34 @@
 		grid-template-columns: 1fr;
 	}
 }
+
+.skeleton {
+	animation: skeleton-loading 1s linear infinite alternate;
+	max-height: 242px;
+}
+
+@keyframes skeleton-loading {
+	0% {
+		background-color: hsl(0, 0%, 100%);
+	}
+	100% {
+		background-color: hsl(200, 20%, 95%);
+	}
+}
+
+.skeletonTitle {
+	height: 33px;
+	background-color: hsl(200, 20%, 95%);
+}
+
+.skeletonStats {
+	display: flex;
+	flex-direction: column;
+	gap: 0px;
+}
+
+.skeletonStat {
+	height: 41px;
+	background-color: hsla(0, 0%, 0%, 0.005);
+	border-bottom: 1px solid hsla(0, 0%, 0%, 0.065);
+}

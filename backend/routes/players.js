@@ -46,7 +46,6 @@ router.get('/fetch', async (req, res) => {
 // Get all players
 router.get('/', async (req, res) => {
 	try {
-		console.log('hey')
 		const players = await Player.find()
 		res.json(players)
 	} catch (error) {
