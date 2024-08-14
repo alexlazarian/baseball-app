@@ -128,6 +128,25 @@ function PlayerList() {
 		setIsGenerating(false)
 	}
 
+	const handleSavePlayer = async editedPlayer => {
+		try {
+			const response = await api.put(
+				`/players/${editedPlayer._id}`,
+				editedPlayer
+			)
+			if (response.status === 200) {
+				setPlayers(prevPlayers =>
+					prevPlayers.map(p =>
+						p._id === editedPlayer._id ? editedPlayer : p
+					)
+				)
+				setSelectedPlayer(editedPlayer)
+			}
+		} catch (error) {
+			console.error('Error updating player:', error)
+		}
+	}
+
 	return (
 		<div className={styles.playerListContainer}>
 			<div className={styles.playerListHeader}>
@@ -185,6 +204,7 @@ function PlayerList() {
 					onClose={handleCloseModal}
 					description={description}
 					isGenerating={isGenerating}
+					onSave={handleSavePlayer}
 				/>
 			)}
 		</div>

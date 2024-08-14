@@ -98,3 +98,7 @@
 	border-radius: 4px;
 	font-weight: bold;
 }
+
+.closeButton {
+	grid-column: 0 / -1;
+}

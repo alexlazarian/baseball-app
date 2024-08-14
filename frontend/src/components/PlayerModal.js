@@ -1,4 +1,4 @@
-import React, {useRef, useEffect} from 'react'
+import React, {useRef, useEffect, useState} from 'react'
 import styles from './PlayerModal.module.scss'
 
 const PlayerModal = ({
@@ -6,7 +6,10 @@ const PlayerModal = ({
 	onClose,
 	description,
 	isGenerating,
+	onSave,
 }) => {
+	const [isEditing, setIsEditing] = useState(false)
+	const [editedPlayer, setEditedPlayer] = useState({...player})
 	const descriptionRef = useRef(null)
 
 	useEffect(() => {
@@ -23,11 +26,36 @@ const PlayerModal = ({
 		}
 	}, [description])
 
+	const handleEdit = () => {
+		setIsEditing(true)
+	}
+
+	const handleSave = () => {
+		console.log('editedPlayer', editedPlayer)
+		onSave(editedPlayer)
+		setIsEditing(false)
+	}
+
+	const handleInputChange = e => {
+		const {name, value} = e.target
+		setEditedPlayer(prev => ({...prev, [name]: value}))
+	}
+
 	return (
 		<div className={styles.modalOverlay}>
 			<div className={styles.modalContent}>
 				<div className={styles.playerInfo}>
-					<h2>{player.player}</h2>
+					{isEditing ? (
+						<input
+							type='text'
+							name='player'
+							value={editedPlayer.player}
+							onChange={handleInputChange}
+							className={styles.editInput}
+						/>
+					) : (
+						<h2>{player.player}</h2>
+					)}
 					<p className={styles.rank}>Rank: {player.rank}</p>
 				</div>
 				<div className={styles.descriptionContainer}>
@@ -38,26 +66,47 @@ const PlayerModal = ({
 					</div>
 				</div>
 				<div className={styles.statsContainer}>
-					<div className={styles.statItem}>
-						<span className={styles.statLabel}>Year</span>
-						<span className={styles.statValue}>{player.year}</span>
-					</div>
-					<div className={styles.statItem}>
-						<span className={styles.statLabel}>Age</span>
-						<span className={styles.statValue}>
-							{player.ageThatYear}
-						</span>
-					</div>
-					<div className={styles.statItem}>
-						<span className={styles.statLabel}>Hits</span>
-						<span className={styles.statValue}>{player.hits}</span>
-					</div>
-					<div className={styles.statItem}>
-						<span className={styles.statLabel}>Bats</span>
-						<span className={styles.statValue}>{player.bats}</span>
-					</div>
+					{['year', 'ageThatYear', 'hits', 'bats'].map(stat => (
+						<div key={stat} className={styles.statItem}>
+							<span className={styles.statLabel}>
+								{stat.charAt(0).toUpperCase() + stat.slice(1)}
+							</span>
+							{isEditing ? (
+								<input
+									type='text'
+									name={stat}
+									value={editedPlayer[stat]}
+									onChange={handleInputChange}
+									className={styles.editInput}
+								/>
+							) : (
+								<span className={styles.statValue}>
+									{player[stat]}
+								</span>
+							)}
+						</div>
+					))}
 				</div>
-				<button onClick={onClose}>Close</button>
+				<div className={styles.buttonContainer}>
+					{isEditing ? (
+						<button
+							className={styles.saveButton}
+							onClick={handleSave}
+						>
+							Save
+						</button>
+					) : (
+						<button
+							className={styles.editButton}
+							onClick={handleEdit}
+						>
+							Edit
+						</button>
+					)}
+					<button className={styles.closeButton} onClick={onClose}>
+						Close
+					</button>
+				</div>
 			</div>
 		</div>
 	)
