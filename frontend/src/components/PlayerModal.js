@@ -14,6 +14,7 @@ const PlayerModal = ({
 		description,
 	})
 	const descriptionRef = useRef(null)
+	const modalContentRef = useRef(null)
 
 	useEffect(() => {
 		if (descriptionRef.current) {
@@ -28,6 +29,12 @@ const PlayerModal = ({
 			}
 		}
 	}, [description])
+
+	const handleOverlayClick = e => {
+		if (e.target === e.currentTarget) {
+			onClose()
+		}
+	}
 
 	const handleEdit = () => {
 		setIsEditing(true)
@@ -44,8 +51,8 @@ const PlayerModal = ({
 	}
 
 	return (
-		<div className={styles.modalOverlay}>
-			<div className={styles.modalContent}>
+		<div className={styles.modalOverlay} onClick={handleOverlayClick}>
+			<div className={styles.modalContent} ref={modalContentRef}>
 				<div className={styles.playerInfo}>
 					{isEditing ? (
 						<input
