@@ -8,6 +8,7 @@ function PlayerList() {
 	const [isLoading, setIsLoading] = useState(false)
 	const [selectedPlayer, setSelectedPlayer] = useState(null)
 	const [description, setDescription] = useState('')
+	const [isGenerating, setIsGenerating] = useState(false)
 
 	const fetchPlayers = async () => {
 		try {
@@ -44,6 +45,7 @@ function PlayerList() {
 	const handlePlayerClick = async player => {
 		setSelectedPlayer(player)
 		setDescription('')
+		setIsGenerating(true)
 		try {
 			const response = await fetch(
 				'http://localhost:5050/api/players/generate-description',
@@ -71,6 +73,8 @@ function PlayerList() {
 						const data = JSON.parse(line.slice(6))
 						if (data.content) {
 							setDescription(prev => prev + data.content)
+						} else if (data.done) {
+							setIsGenerating(false)
 						}
 					}
 				}
@@ -78,19 +82,18 @@ function PlayerList() {
 		} catch (error) {
 			console.error('Error fetching player description:', error)
 			setDescription('Failed to load description.')
+			setIsGenerating(false)
 		}
 	}
 
 	return (
 		<div className={styles.playerListContainer}>
-			<h1>Baseball Players</h1>
-			<button
-				onClick={handleFetchPlayers}
-				disabled={isLoading}
-				className={styles.fetchButton}
-			>
-				{isLoading ? 'Fetching...' : 'Fetch Players'}
-			</button>
+			<div className={styles.playerListHeader}>
+				<h1>Baseball Players</h1>
+				<button onClick={handleFetchPlayers} disabled={isLoading}>
+					{isLoading ? 'Fetching...' : 'Fetch Players'}
+				</button>
+			</div>
 			{isLoading ? (
 				<p>Loading...</p>
 			) : (
@@ -139,6 +142,7 @@ function PlayerList() {
 					player={selectedPlayer}
 					onClose={() => setSelectedPlayer(null)}
 					description={description}
+					isGenerating={isGenerating}
 				/>
 			)}
 		</div>

@@ -21,13 +21,12 @@
 .description {
 	white-space: pre-wrap;
 	min-height: 100px;
-	position: relative;
 }
 
-.description::after {
-	content: '|';
-	position: absolute;
-	right: 0;
+.cursor {
+	display: inline-block;
+	width: 0;
+	color: var(--primary-color);
 	animation: cursor-blink 1s step-end infinite;
 }
 

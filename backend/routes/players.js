@@ -101,7 +101,11 @@ router.post('/generate-description', async (req, res) => {
 		for await (const chunk of stream) {
 			const content = chunk.choices[0]?.delta?.content || ''
 			if (content) {
-				res.write(`data: ${JSON.stringify({content})}\n\n`)
+				// Send each character separately with a delay
+				for (const char of content) {
+					await new Promise(resolve => setTimeout(resolve, 50)) // 50ms delay
+					res.write(`data: ${JSON.stringify({content: char})}\n\n`)
+				}
 			}
 		}
 
