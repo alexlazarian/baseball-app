@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import api from '../utils/api'
 import styles from './PlayerList.module.scss'
 import PlayerModal from './PlayerModal'
@@ -9,6 +9,7 @@ function PlayerList() {
 	const [selectedPlayer, setSelectedPlayer] = useState(null)
 	const [description, setDescription] = useState('')
 	const [isGenerating, setIsGenerating] = useState(false)
+	const abortControllerRef = useRef(null)
 
 	const fetchPlayers = async () => {
 		try {
@@ -43,6 +44,11 @@ function PlayerList() {
 	}
 
 	const handlePlayerClick = async player => {
+		if (abortControllerRef.current) {
+			abortControllerRef.current.abort()
+		}
+		abortControllerRef.current = new AbortController()
+
 		setSelectedPlayer(player)
 		setIsGenerating(false)
 
@@ -62,6 +68,7 @@ function PlayerList() {
 							'Content-Type': 'application/json',
 						},
 						body: JSON.stringify(player),
+						signal: abortControllerRef.current.signal,
 					}
 				)
 
@@ -95,11 +102,24 @@ function PlayerList() {
 					}
 				}
 			} catch (error) {
-				console.error('Error fetching player description:', error)
-				setDescription('Failed to load description.')
+				if (error.name === 'AbortError') {
+					console.log('Fetch aborted')
+				} else {
+					console.error('Error fetching player description:', error)
+					setDescription('Failed to load description.')
+				}
 				setIsGenerating(false)
 			}
 		}
+	}
+
+	const handleCloseModal = () => {
+		if (abortControllerRef.current) {
+			abortControllerRef.current.abort()
+		}
+		setSelectedPlayer(null)
+		setDescription('')
+		setIsGenerating(false)
 	}
 
 	return (
@@ -156,7 +176,7 @@ function PlayerList() {
 			{selectedPlayer && (
 				<PlayerModal
 					player={selectedPlayer}
-					onClose={() => setSelectedPlayer(null)}
+					onClose={handleCloseModal}
 					description={description}
 					isGenerating={isGenerating}
 				/>
