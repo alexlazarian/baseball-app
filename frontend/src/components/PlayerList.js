@@ -141,6 +141,7 @@ function PlayerList() {
 					)
 				)
 				setSelectedPlayer(editedPlayer)
+				setDescription(editedPlayer.description) // Update the description state
 			}
 		} catch (error) {
 			console.error('Error updating player:', error)
@@ -178,7 +179,7 @@ function PlayerList() {
 								<div className={styles.statItem}>
 									<span className={styles.statLabel}>Age</span>
 									<span className={styles.statValue}>
-										{player.ageThatYear}
+										{player.age}
 									</span>
 								</div>
 								<div className={styles.statItem}>

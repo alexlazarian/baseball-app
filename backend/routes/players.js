@@ -23,9 +23,7 @@ router.get('/fetch', async (req, res) => {
 		const players = correctedPlayers.map(player => ({
 			rank: parseInt(player.Rank),
 			player: player.Player || '',
-			ageThatYear: player.AgeThatYear
-				? parseInt(player.AgeThatYear)
-				: null,
+			age: player.AgeThatYear ? parseInt(player.AgeThatYear) : null,
 			hits: player.Hits || 0,
 			year: player.Year || null,
 			bats: player.Bats || '',
@@ -77,7 +75,7 @@ const openai = new OpenAI({
 })
 
 router.post('/generate-description', async (req, res) => {
-	const {_id, player, year, hits, ageThatYear, bats} = req.body
+	const {_id, player, year, hits, age, bats} = req.body
 
 	try {
 		// Check if the player already has a description
@@ -90,7 +88,7 @@ router.post('/generate-description', async (req, res) => {
 		const prompt = `Generate a brief description of the baseball player ${player} based on the following stats:
     Year: ${year}
     Hits: ${hits}
-    Age: ${ageThatYear}
+    Age: ${age}
     Bats: ${bats}
     Please provide a concise summary of their performance and any notable achievements.`
 

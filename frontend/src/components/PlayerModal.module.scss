@@ -83,9 +83,15 @@
 .statItem {
 	display: flex;
 	justify-content: space-between;
+	gap: 20px;
 	align-items: center;
 	border-bottom: 1px solid var(--border-color);
 	padding: 5px 0;
+}
+
+.editInput {
+	font-size: 24px;
+	font-weight: 600;
 }
 
 .statLabel {
@@ -99,6 +105,38 @@
 	font-weight: bold;
 }
 
+.statValueInput {
+	font-size: 16px;
+	border: 1px solid var(--border-color);
+	padding: 5px 10px;
+	border-radius: 4px;
+	width: max-content;
+	font-weight: bold;
+	width: 50%;
+}
+
 .closeButton {
 	grid-column: 0 / -1;
+	background-color: gray;
+}
+
+.editTextarea {
+	font-family: Arial, sans-serif;
+	font-size: 16px;
+	border: 1px solid var(--border-color);
+	width: 100%;
+	height: 100px;
+	min-width: 100%;
+	max-width: 100%;
+	max-height: 100%;
+	border: 0p;
+	border-radius: 4px;
+	padding: 5px;
+}
+
+.buttonContainer {
+	grid-column: 1 / -1;
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
 }

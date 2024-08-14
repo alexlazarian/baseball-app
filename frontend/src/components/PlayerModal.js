@@ -9,7 +9,10 @@ const PlayerModal = ({
 	onSave,
 }) => {
 	const [isEditing, setIsEditing] = useState(false)
-	const [editedPlayer, setEditedPlayer] = useState({...player})
+	const [editedPlayer, setEditedPlayer] = useState({
+		...player,
+		description,
+	})
 	const descriptionRef = useRef(null)
 
 	useEffect(() => {
@@ -31,7 +34,6 @@ const PlayerModal = ({
 	}
 
 	const handleSave = () => {
-		console.log('editedPlayer', editedPlayer)
 		onSave(editedPlayer)
 		setIsEditing(false)
 	}
@@ -60,13 +62,24 @@ const PlayerModal = ({
 				</div>
 				<div className={styles.descriptionContainer}>
 					<h3>Description:</h3>
-					<div ref={descriptionRef} className={styles.description}>
-						{description || 'Generating description...'}
-						{isGenerating && <span className={styles.cursor}>|</span>}
-					</div>
+					{isEditing ? (
+						<textarea
+							name='description'
+							value={editedPlayer.description}
+							onChange={handleInputChange}
+							className={styles.editTextarea}
+						/>
+					) : (
+						<div ref={descriptionRef} className={styles.description}>
+							{description || 'No description available.'}
+							{isGenerating && (
+								<span className={styles.cursor}>|</span>
+							)}
+						</div>
+					)}
 				</div>
 				<div className={styles.statsContainer}>
-					{['year', 'ageThatYear', 'hits', 'bats'].map(stat => (
+					{['year', 'age', 'hits', 'bats'].map(stat => (
 						<div key={stat} className={styles.statItem}>
 							<span className={styles.statLabel}>
 								{stat.charAt(0).toUpperCase() + stat.slice(1)}
@@ -77,7 +90,7 @@ const PlayerModal = ({
 									name={stat}
 									value={editedPlayer[stat]}
 									onChange={handleInputChange}
-									className={styles.editInput}
+									className={styles.statValueInput}
 								/>
 							) : (
 								<span className={styles.statValue}>
@@ -88,6 +101,9 @@ const PlayerModal = ({
 					))}
 				</div>
 				<div className={styles.buttonContainer}>
+					<button className={styles.closeButton} onClick={onClose}>
+						Close
+					</button>
 					{isEditing ? (
 						<button
 							className={styles.saveButton}
@@ -103,9 +119,6 @@ const PlayerModal = ({
 							Edit
 						</button>
 					)}
-					<button className={styles.closeButton} onClick={onClose}>
-						Close
-					</button>
 				</div>
 			</div>
 		</div>
