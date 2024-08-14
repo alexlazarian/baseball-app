@@ -67,8 +67,6 @@ router.put('/:id', async (req, res) => {
 	}
 })
 
-// TODO: Add route for LLM-generated description
-
 const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
 })

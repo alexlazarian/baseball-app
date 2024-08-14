@@ -21,37 +21,32 @@ function PlayerList() {
 		return () => clearTimeout(timer)
 	}, [])
 
-	const fetchPlayers = async () => {
+	const withLoading = asyncFunction => async () => {
 		try {
 			setIsLoading(true)
-			const res = await api.get('/players')
-			setPlayers(res.data)
+			await asyncFunction()
 		} catch (error) {
-			console.error('Error fetching players:', error)
+			console.error('Error:', error)
+			// Here we could also set an error state to display to the user
 		} finally {
 			setIsLoading(false)
 		}
 	}
+
+	const fetchPlayers = withLoading(async () => {
+		const res = await api.get('/players')
+		setPlayers(res.data)
+	})
+
+	const handleExternalFetch = withLoading(async () => {
+		await api.get('/players/fetch')
+		// After fetching and saving new players, refresh the list
+		await fetchPlayers()
+	})
 
 	useEffect(() => {
 		fetchPlayers()
 	}, [])
-
-	const handleFetchPlayers = async () => {
-		try {
-			setIsLoading(true)
-			await api.get('/players/fetch')
-			// After fetching and saving new players, refresh the list
-			await fetchPlayers()
-		} catch (error) {
-			console.error(
-				'Error fetching players from external API:',
-				error
-			)
-		} finally {
-			setIsLoading(false)
-		}
-	}
 
 	const handlePlayerClick = async player => {
 		if (abortControllerRef.current) {
@@ -161,68 +156,66 @@ function PlayerList() {
 		<div className={styles.playerListContainer}>
 			<div className={styles.playerListHeader}>
 				<h1>Baseball Players</h1>
-				<button onClick={handleFetchPlayers} disabled={isLoading}>
+				<button onClick={handleExternalFetch} disabled={isLoading}>
 					{isLoading ? 'Fetching...' : 'Fetch Players'}
 				</button>
 			</div>
-			{isLoading ? (
-				<p>Loading...</p>
-			) : (
-				<div className={styles.playerGrid}>
-					{showSkeleton
-						? Array.from({length: 8}).map((_, index) => (
-								<div
-									key={index}
-									className={`${styles.playerCard} ${styles.skeleton}`}
-								>
-									<div className={styles.skeletonTitle}></div>
-									<div className={styles.skeletonStats}>
-										<div className={styles.skeletonStat}></div>
-										<div className={styles.skeletonStat}></div>
-										<div className={styles.skeletonStat}></div>
-										<div className={styles.skeletonStat}></div>
+
+			<div className={styles.playerGrid}>
+				{showSkeleton || isLoading
+					? Array.from({length: 8}).map((_, index) => (
+							<div
+								key={index}
+								className={`${styles.playerCard} ${styles.skeleton}`}
+							>
+								<div className={styles.skeletonTitle}></div>
+								<div className={styles.skeletonStats}>
+									<div className={styles.skeletonStat}></div>
+									<div className={styles.skeletonStat}></div>
+									<div className={styles.skeletonStat}></div>
+									<div className={styles.skeletonStat}></div>
+								</div>
+							</div>
+					  ))
+					: players.map(player => (
+							<div
+								key={player._id}
+								className={styles.playerCard}
+								onClick={() => handlePlayerClick(player)}
+							>
+								<h2>
+									{player.rank}. {player.player}
+								</h2>
+								<div className={styles.statsContainer}>
+									<div className={styles.statItem}>
+										<span className={styles.statLabel}>Year</span>
+										<span className={styles.statValue}>
+											{player.year}
+										</span>
+									</div>
+									<div className={styles.statItem}>
+										<span className={styles.statLabel}>Age</span>
+										<span className={styles.statValue}>
+											{player.age}
+										</span>
+									</div>
+									<div className={styles.statItem}>
+										<span className={styles.statLabel}>Hits</span>
+										<span className={styles.statValue}>
+											{player.hits}
+										</span>
+									</div>
+									<div className={styles.statItem}>
+										<span className={styles.statLabel}>Bats</span>
+										<span className={styles.statValue}>
+											{player.bats}
+										</span>
 									</div>
 								</div>
-						  ))
-						: players.map(player => (
-								<div
-									key={player._id}
-									className={styles.playerCard}
-									onClick={() => handlePlayerClick(player)}
-								>
-									<h2>
-										{player.rank}. {player.player}
-									</h2>
-									<div className={styles.statsContainer}>
-										<div className={styles.statItem}>
-											<span className={styles.statLabel}>Year</span>
-											<span className={styles.statValue}>
-												{player.year}
-											</span>
-										</div>
-										<div className={styles.statItem}>
-											<span className={styles.statLabel}>Age</span>
-											<span className={styles.statValue}>
-												{player.age}
-											</span>
-										</div>
-										<div className={styles.statItem}>
-											<span className={styles.statLabel}>Hits</span>
-											<span className={styles.statValue}>
-												{player.hits}
-											</span>
-										</div>
-										<div className={styles.statItem}>
-											<span className={styles.statLabel}>Bats</span>
-											<span className={styles.statValue}>
-												{player.bats}
-											</span>
-										</div>
-									</div>
-								</div>
-						  ))}
-				</div>
-			)}
+							</div>
+					  ))}
+			</div>
+
 			{selectedPlayer && (
 				<PlayerModal
 					player={selectedPlayer}
