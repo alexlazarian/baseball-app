@@ -10,6 +10,7 @@ function PlayerList() {
 	const [description, setDescription] = useState('')
 	const [isGenerating, setIsGenerating] = useState(false)
 	const abortControllerRef = useRef(null)
+	const fullDescriptionRef = useRef('')
 
 	const fetchPlayers = async () => {
 		try {
@@ -59,6 +60,7 @@ function PlayerList() {
 			// If no description, generate it
 			setDescription('')
 			setIsGenerating(true)
+			fullDescriptionRef.current = '' // Reset the full description
 			try {
 				const response = await fetch(
 					'http://localhost:5050/api/players/generate-description',
@@ -86,14 +88,18 @@ function PlayerList() {
 						if (line.startsWith('data: ')) {
 							const data = JSON.parse(line.slice(6))
 							if (data.content) {
-								setDescription(prev => prev + data.content)
+								fullDescriptionRef.current += data.content
+								setDescription(fullDescriptionRef.current)
 							} else if (data.done) {
 								setIsGenerating(false)
 								// Update the player in the local state with the new description
 								setPlayers(prevPlayers =>
 									prevPlayers.map(p =>
 										p._id === player._id
-											? {...p, description: description}
+											? {
+													...p,
+													description: fullDescriptionRef.current,
+											  }
 											: p
 									)
 								)
