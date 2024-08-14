@@ -7,6 +7,7 @@ const PlayerSchema = new mongoose.Schema({
 	hits: {type: Number, default: 0},
 	year: {type: Number, default: null},
 	bats: {type: String, default: ''},
+	description: {type: String, default: ''},
 })
 
 module.exports = mongoose.model('Player', PlayerSchema)

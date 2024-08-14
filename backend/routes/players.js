@@ -77,15 +77,23 @@ const openai = new OpenAI({
 })
 
 router.post('/generate-description', async (req, res) => {
-	const {player, year, hits, ageThatYear, bats} = req.body
-	const prompt = `Generate a brief description of the baseball player ${player} based on the following stats:
-  Year: ${year}
-  Hits: ${hits}
-  Age: ${ageThatYear}
-  Bats: ${bats}
-  Please provide a concise summary of their performance and any notable achievements.`
+	const {_id, player, year, hits, ageThatYear, bats} = req.body
 
 	try {
+		// Check if the player already has a description
+		const existingPlayer = await Player.findById(_id)
+		if (existingPlayer.description) {
+			res.json({description: existingPlayer.description})
+			return
+		}
+
+		const prompt = `Generate a brief description of the baseball player ${player} based on the following stats:
+    Year: ${year}
+    Hits: ${hits}
+    Age: ${ageThatYear}
+    Bats: ${bats}
+    Please provide a concise summary of their performance and any notable achievements.`
+
 		res.writeHead(200, {
 			'Content-Type': 'text/event-stream',
 			'Cache-Control': 'no-cache',
@@ -98,16 +106,23 @@ router.post('/generate-description', async (req, res) => {
 			stream: true,
 		})
 
+		let fullDescription = ''
+
 		for await (const chunk of stream) {
 			const content = chunk.choices[0]?.delta?.content || ''
 			if (content) {
-				// Send each character separately with a delay
+				fullDescription += content
 				for (const char of content) {
 					await new Promise(resolve => setTimeout(resolve, 50)) // 50ms delay
 					res.write(`data: ${JSON.stringify({content: char})}\n\n`)
 				}
 			}
 		}
+
+		// Save the generated description to the database
+		await Player.findByIdAndUpdate(_id, {
+			description: fullDescription,
+		})
 
 		res.write(`data: ${JSON.stringify({done: true})}\n\n`)
 		res.end()
